@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- TOS Modal Template -->
+        <template id="checkout_tos_modal" name="Checkout TOS Modal">
+            <t t-if="tos_enabled and tos_show_modal">
+                <div class="modal fade" id="checkout_tos_modal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <t t-esc="tos_title"/>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"/>
+                            </div>
+                            <div class="modal-body o_tos_content">
+                                <t t-raw="tos_content"/>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- TOS Dedicated Page Template -->
+        <template id="tos_page" name="Terms of Service Page">
+            <t t-call="website.layout">
+                <div class="oe_structure">
+                    <div class="container mt-4 mb-4">
+                        <div class="row">
+                            <div class="col-lg-10 offset-lg-1">
+                                <h1><t t-esc="tos_title"/></h1>
+                                <div class="mt-4">
+                                    <t t-raw="tos_content"/>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Inherit Payment Page to Add TOS Checkbox -->
+        <template id="website_sale_payment_tos" inherit_id="website_sale.payment" name="Payment Page TOS">
+            <!-- Add TOS modal if enabled -->
+            <xpath expr="." position="inside">
+                <t t-call="website_sale_checkout_tos.checkout_tos_modal"/>
+            </xpath>
+
+            <!-- Add TOS checkbox before payment_method div (same pattern as window_website_deposit) -->
+            <!-- This XPath matches the working pattern from window_website_deposit module -->
+            <xpath expr="//div[@id='payment_method']" position="before">
+                <t t-if="tos_enabled">
+                    <div class="oe_website_sale_tos_block mb-3">
+                        <div class="form-check">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                name="tos_accepted" 
+                                id="tos_accepted"
+                                required="required"
+                            />
+                            <label class="form-check-label" for="tos_accepted">
+                                <t t-if="tos_show_modal">
+                                    I understand this is a custom, made-to-order product and I have read and agree to the 
+                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#checkout_tos_modal">
+                                        <t t-esc="tos_title"/>
+                                    </a>.
+                                </t>
+                                <t t-if="not tos_show_modal">
+                                    I understand this is a custom, made-to-order product and I have read and agree to the 
+                                    <a href="/shop/tos" target="_blank">
+                                        <t t-esc="tos_title"/>
+                                    </a>.
+                                </t>
+                            </label>
+                        </div>
+                        <t t-if="request.session.get('tos_error')">
+                            <div class="alert alert-danger mt-2" role="alert">
+                                <t t-esc="request.session.get('tos_error')"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+
+        <!-- Also add TOS to checkout page if it's separate from payment -->
+        <template id="website_sale_checkout_tos" inherit_id="website_sale.checkout" name="Checkout Page TOS">
+            <!-- Add TOS modal if enabled -->
+            <xpath expr="." position="inside">
+                <t t-call="website_sale_checkout_tos.checkout_tos_modal"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>
+

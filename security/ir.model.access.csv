@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_order_tos,access_sale_order_tos,model_sale_order,sales_team.group_sale_salesman,1,1,1,0
+access_sale_order_tos_manager,access_sale_order_tos_manager,model_sale_order,sales_team.group_sale_manager,1,1,1,1
+access_res_config_settings_tos,access_res_config_settings_tos,model_res_config_settings,base.group_system,1,1,1,1
+

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="website_sale_checkout_tos_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.website.sale.checkout.tos</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Insert our block inside the main settings wrapper -->
+            <xpath expr="//form[1]" position="inside">
+                <div class="app_settings_block"
+                     data-string="Checkout Terms &amp; Conditions"
+                     string="Checkout Terms &amp; Conditions"
+                     data-key="website_sale_checkout_tos">
+                    <h2>Checkout Terms &amp; Conditions</h2>
+                    <div class="row mt16 o_settings_container">
+                        <!-- Enable TOS -->
+                        <div class="col-12 col-lg-6 o_setting_box"
+                             data-key="tos_enabled">
+                            <div class="o_setting_left">
+                                <field name="tos_enabled"/>
+                            </div>
+                            <div class="o_setting_right">
+                                <label for="tos_enabled"/>
+                                <div class="text-muted">
+                                    Enable Terms of Service enforcement at checkout. 
+                                    If disabled, TOS checkbox will not be shown.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TOS Title -->
+                        <div class="col-12 col-lg-6 o_setting_box"
+                             data-key="tos_title">
+                            <div class="o_setting_left">
+                                <field name="tos_title"/>
+                            </div>
+                            <div class="o_setting_right">
+                                <label for="tos_title"/>
+                                <div class="text-muted">
+                                    Title displayed for the Terms of Service 
+                                    (e.g., "Terms &amp; Conditions", "Terms of Service").
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TOS Content -->
+                        <div class="col-12 o_setting_box"
+                             data-key="tos_content">
+                            <div class="o_setting_left">
+                                <field name="tos_content" widget="html"/>
+                            </div>
+                            <div class="o_setting_right">
+                                <label for="tos_content"/>
+                                <div class="text-muted">
+                                    Full Terms of Service text displayed in modal or dedicated page. 
+                                    HTML formatting is supported.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TOS Version -->
+                        <div class="col-12 col-lg-6 o_setting_box"
+                             data-key="tos_version">
+                            <div class="o_setting_left">
+                                <field name="tos_version"/>
+                            </div>
+                            <div class="o_setting_right">
+                                <label for="tos_version"/>
+                                <div class="text-muted">
+                                    Version identifier for the Terms of Service 
+                                    (e.g., "v1.0", "2025-11-24"). 
+                                    This is stored with each order acceptance.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Show TOS in Modal -->
+                        <div class="col-12 col-lg-6 o_setting_box"
+                             data-key="tos_show_modal">
+                            <div class="o_setting_left">
+                                <field name="tos_show_modal"/>
+                            </div>
+                            <div class="o_setting_right">
+                                <label for="tos_show_modal"/>
+                                <div class="text-muted">
+                                    If enabled, TOS content is displayed in a modal popup. 
+                                    If disabled, TOS opens in a dedicated page.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

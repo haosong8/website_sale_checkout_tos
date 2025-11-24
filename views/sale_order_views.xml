@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Add TOS fields to sale order form view -->
+    <record id="view_order_form_tos" model="ir.ui.view">
+        <field name="name">sale.order.form.tos</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add TOS fields in the order header or a separate page -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="tos_accepted" readonly="1"/>
+                <field name="tos_accepted_on" readonly="1"/>
+                <field name="tos_version" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add TOS fields to sale order tree view (optional, for quick reference) -->
+    <record id="view_order_tree_tos" model="ir.ui.view">
+        <field name="name">sale.order.tree.tos</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <!-- Add TOS accepted column -->
+            <xpath expr="//field[@name='date_order']" position="after">
+                <field name="tos_accepted" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
