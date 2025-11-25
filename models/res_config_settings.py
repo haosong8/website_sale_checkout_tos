@@ -10,7 +10,7 @@ class ResConfigSettings(models.TransientModel):
         string="Enable Terms of Service",
         config_parameter="website_sale_checkout_tos.tos_enabled",
         default=False,
-        help="Enable Terms of Service enforcement at checkout. If disabled, TOS checkbox will not be shown.",
+        help="Enable the Review & Accept flow at checkout. If disabled, the dialog and buttons are hidden.",
     )
 
     tos_title = fields.Char(
@@ -22,8 +22,7 @@ class ResConfigSettings(models.TransientModel):
 
     tos_content = fields.Html(
         string="TOS Content",
-        config_parameter="website_sale_checkout_tos.tos_content",
-        help="Full Terms of Service text displayed in modal or dedicated page. HTML formatting is supported.",
+        help="Full Terms of Service text displayed inside the review dialog. HTML formatting is supported.",
     )
 
     tos_version = fields.Char(
@@ -33,10 +32,15 @@ class ResConfigSettings(models.TransientModel):
         help="Version identifier for the Terms of Service (e.g., 'v1.0', '2025-11-24'). This is stored with each order acceptance.",
     )
 
-    tos_show_modal = fields.Boolean(
-        string="Show TOS in Modal",
-        config_parameter="website_sale_checkout_tos.tos_show_modal",
-        default=True,
-        help="If enabled, TOS content is displayed in a modal popup. If disabled, TOS opens in a dedicated page.",
-    )
+    def get_values(self):
+        res = super().get_values()
+        ICP = self.env["ir.config_parameter"].sudo()
+        res.update(
+            tos_content=ICP.get_param("website_sale_checkout_tos.tos_content", ""),
+        )
+        return res
 
+    def set_values(self):
+        super().set_values()
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.set_param("website_sale_checkout_tos.tos_content", self.tos_content or "")

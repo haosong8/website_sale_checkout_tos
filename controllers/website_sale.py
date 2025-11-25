@@ -24,6 +24,7 @@ class WebsiteSaleTOS(WebsiteSale):
             "tos_content": ICP.get_param("website_sale_checkout_tos.tos_content", ""),
             "tos_version": ICP.get_param("website_sale_checkout_tos.tos_version", "v1.0"),
             "tos_show_modal": ICP.get_param("website_sale_checkout_tos.tos_show_modal", "True") == "True",
+            "tos_checkout_dialog": ICP.get_param("website_sale_checkout_tos.tos_checkout_dialog", "False") == "True",
         }
 
     @http.route(["/shop/tos"], type="http", auth="public", website=True)
@@ -129,8 +130,63 @@ class WebsiteSaleTOS(WebsiteSale):
         return super().payment_transaction(**post)
 
     @http.route()
+    def cart(self, **post):
+        """Override cart to pass TOS config to template."""
+        response = super().cart(**post)
+        
+        # Add TOS config to context if TOS is enabled
+        if self._is_tos_enabled():
+            tos_config = self._get_tos_config()
+            if hasattr(response, 'qcontext'):
+                response.qcontext.update(tos_config)
+        
+        return response
+
+    @http.route()
     def checkout(self, **post):
-        """Override checkout to pass TOS config to template."""
+        """Override checkout to pass TOS config to template and validate TOS."""
+        order = request.website.sale_get_order(force_create=False)
+        
+        # If using dialog mode, check TOS acceptance before proceeding
+        if self._is_tos_enabled() and order:
+            tos_config = self._get_tos_config()
+            tos_accepted = post.get("tos_accepted")
+            is_accepted = (
+                tos_accepted in ("on", "true", "1", True) or
+                (isinstance(tos_accepted, bool) and tos_accepted)
+            )
+            
+            if tos_config.get("tos_checkout_dialog"):
+                # In dialog mode, validate TOS was accepted
+                if not is_accepted:
+                    request.session['tos_error'] = _("You must agree to the Terms & Conditions to proceed.")
+                    return request.redirect("/shop/cart")
+                # Store acceptance when using dialog mode
+                if is_accepted and not order.tos_accepted:
+                    order.write({
+                        "tos_accepted": True,
+                        "tos_accepted_on": fields.Datetime.now(),
+                        "tos_version": tos_config["tos_version"],
+                    })
+                    order.message_post(
+                        body=_("Customer accepted Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
+                    )
+            else:
+                # In checkbox mode, validate TOS was accepted
+                if not is_accepted:
+                    request.session['tos_error'] = _("You must agree to the Terms & Conditions to proceed.")
+                    return request.redirect("/shop/cart")
+                # Store acceptance when using checkbox mode
+                if is_accepted and not order.tos_accepted:
+                    order.write({
+                        "tos_accepted": True,
+                        "tos_accepted_on": fields.Datetime.now(),
+                        "tos_version": tos_config["tos_version"],
+                    })
+                    order.message_post(
+                        body=_("Customer accepted Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
+                    )
+        
         response = super().checkout(**post)
         
         # Add TOS config to context if TOS is enabled
@@ -140,4 +196,44 @@ class WebsiteSaleTOS(WebsiteSale):
                 response.qcontext.update(tos_config)
         
         return response
+
+    @http.route(
+        "/shop/cart/get_tos_block",
+        type="http",
+        auth="public",
+        website=True,
+        methods=["GET"],
+    )
+    def get_tos_block(self, **kw):
+        """Return the TOS block HTML for JavaScript injection."""
+        import logging
+        _logger = logging.getLogger(__name__)
+        
+        _logger.info("TOS Cart Inject: get_tos_block called")
+        
+        # Check if TOS is enabled
+        if not self._is_tos_enabled():
+            _logger.info("TOS Cart Inject: TOS is not enabled, returning empty")
+            return request.make_response("")
+        
+        _logger.info("TOS Cart Inject: TOS is enabled, getting config")
+        
+        # Get TOS config
+        tos_config = self._get_tos_config()
+        _logger.info("TOS Cart Inject: TOS config: enabled=%s, dialog=%s", 
+                     tos_config.get('tos_enabled'), tos_config.get('tos_checkout_dialog'))
+        
+        # Render the template
+        try:
+            html = request.env["ir.ui.view"]._render_template(
+                "website_sale_checkout_tos.tos_cart_block",
+                values=tos_config
+            )
+            _logger.info("TOS Cart Inject: Template rendered successfully, HTML length: %s", len(html) if html else 0)
+            if html:
+                _logger.info("TOS Cart Inject: HTML preview (first 300 chars): %s", html[:300])
+            return html
+        except Exception as e:
+            _logger.exception("TOS Cart Inject: Error rendering TOS block template: %s", str(e))
+            return request.make_response("")
 

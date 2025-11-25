@@ -25,3 +25,5 @@ class SaleOrder(models.Model):
         help="Version of the Terms of Service that was accepted by the customer.",
     )
 
+
+

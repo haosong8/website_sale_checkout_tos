@@ -28,9 +28,17 @@ to the Odoo 18 website checkout flow:
         'views/sale_order_views.xml',
         'views/website_templates.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'website_sale_checkout_tos/static/src/scss/tos_modal.scss',
+            'website_sale_checkout_tos/static/src/js/tos_cart_inject.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
 }
+
+
 

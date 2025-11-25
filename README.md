@@ -7,7 +7,7 @@ This module adds a reusable, configurable Terms of Service (TOS) agreement step 
 ## Features
 
 - **Configurable TOS**: Manage TOS content, title, and version from Website Settings
-- **Flexible Display**: Support for both modal popup and dedicated page display modes
+- **Two-Step Dialog**: Customers click *Review & Accept*, read the dialog, tick the checkbox, then continue to checkout
 - **Enforcement**: Controller-side validation ensures TOS acceptance cannot be bypassed
 - **Audit Trail**: TOS acceptance is stored on sale orders with timestamp and version
 - **Reusable**: Works across all ecommerce products (windows, flooring, etc.)
@@ -23,20 +23,19 @@ This module adds a reusable, configurable Terms of Service (TOS) agreement step 
 1. Go to **Website → Configuration → Settings**
 2. Scroll to the **"Checkout Terms & Conditions"** section
 3. Configure the following:
-   - **Enable Terms of Service**: Toggle to enable/disable TOS enforcement
+   - **Enable Terms of Service**: Toggle to enable/disable the review dialog
    - **TOS Title**: Title displayed for the Terms of Service (e.g., "Terms & Conditions")
    - **TOS Content**: Full TOS text with HTML formatting support
    - **TOS Version**: Version identifier (e.g., "v1.0", "2025-11-24")
-   - **Show TOS in Modal**: If enabled, TOS displays in a modal popup; if disabled, opens in a dedicated page
 
 ## Usage
 
 ### For Customers
 
-1. When TOS is enabled, customers will see a required checkbox on the payment/checkout page
-2. Customers must check the box to agree to the Terms & Conditions
-3. They can click the TOS link to view the full terms (in modal or new page)
-4. Orders cannot be placed without accepting the TOS
+1. On the cart summary the customer clicks **Review & Accept Terms**
+2. The dialog opens with the full terms; they tick the checkbox and click **Accept & Continue**
+3. The flow automatically redirects them to checkout/payment with proof of acceptance
+4. Orders cannot be placed without completing the dialog
 
 ### For Administrators
 
@@ -80,4 +79,6 @@ This module is designed to work alongside other ecommerce modules:
 ## Support
 
 For issues or questions, please contact your system administrator or refer to the module documentation.
+
+
 

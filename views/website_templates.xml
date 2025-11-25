@@ -4,23 +4,61 @@
         <!-- TOS Modal Template -->
         <template id="checkout_tos_modal" name="Checkout TOS Modal">
             <t t-if="tos_enabled and tos_show_modal">
-                <div class="modal fade" id="checkout_tos_modal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal fade checkout-tos-modal" id="checkout_tos_modal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
                                     <t t-esc="tos_title"/>
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"/>
+                                <button type="button" class="btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"/>
                             </div>
                             <div class="modal-body o_tos_content">
                                 <t t-raw="tos_content"/>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Standalone TOS Block Template for JavaScript Injection -->
+        <template id="tos_cart_block" name="TOS Cart Block (for injection)">
+            <t t-if="tos_enabled and not tos_checkout_dialog">
+                <div class="oe_website_sale_tos_block mb-3" 
+                     t-att-data-tos-enabled="tos_enabled"
+                     t-att-data-tos-checkout-dialog="tos_checkout_dialog">
+                    <div class="form-check">
+                        <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            name="tos_accepted" 
+                            id="tos_accepted_cart"
+                            required="required"
+                        />
+                        <label class="form-check-label" for="tos_accepted_cart">
+                            <t t-if="tos_show_modal">
+                                I understand this is a custom, made-to-order product and I have read and agree to the 
+                                <a href="javascript:void(0)" data-toggle="modal" data-target="#checkout_tos_modal" data-bs-toggle="modal" data-bs-target="#checkout_tos_modal">
+                                    <t t-esc="tos_title"/>
+                                </a>.
+                            </t>
+                            <t t-if="not tos_show_modal">
+                                I understand this is a custom, made-to-order product and I have read and agree to the 
+                                <a href="/shop/tos" target="_blank">
+                                    <t t-esc="tos_title"/>
+                                </a>.
+                            </t>
+                        </label>
+                    </div>
+                    <t t-if="request.session.get('tos_error')">
+                        <div class="alert alert-danger mt-2" role="alert">
+                            <t t-esc="request.session.get('tos_error')"/>
+                        </div>
+                    </t>
                 </div>
             </t>
         </template>
@@ -69,7 +107,7 @@
                             <label class="form-check-label" for="tos_accepted">
                                 <t t-if="tos_show_modal">
                                     I understand this is a custom, made-to-order product and I have read and agree to the 
-                                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#checkout_tos_modal">
+                                    <a href="javascript:void(0)" data-toggle="modal" data-target="#checkout_tos_modal" data-bs-toggle="modal" data-bs-target="#checkout_tos_modal">
                                         <t t-esc="tos_title"/>
                                     </a>.
                                 </t>
@@ -91,6 +129,53 @@
             </xpath>
         </template>
 
+        <!-- TOS Dialog for Checkout Button Click -->
+        <template id="checkout_tos_dialog" name="Checkout TOS Dialog">
+            <t t-if="tos_enabled and tos_checkout_dialog">
+                <div class="modal fade checkout-tos-dialog" id="checkout_tos_dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <t t-esc="tos_title"/>
+                                </h5>
+                            </div>
+                            <div class="modal-body o_tos_content">
+                                <t t-raw="tos_content"/>
+                                <div class="form-check mt-3">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="tos_dialog_accepted"
+                                        required="required"
+                                    />
+                                    <label class="form-check-label" for="tos_dialog_accepted">
+                                        I have read and agree to the <t t-esc="tos_title"/>.
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="tos_dialog_accept_btn" disabled="disabled">
+                                    Accept and Continue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Inherit Cart Page to Add TOS Checkbox -->
+        <template id="website_sale_cart_tos" inherit_id="website_sale.cart" name="Cart Page TOS">
+            <!-- Add TOS modal and dialog if enabled -->
+            <xpath expr="." position="inside">
+                <t t-call="website_sale_checkout_tos.checkout_tos_modal"/>
+                <t t-call="website_sale_checkout_tos.checkout_tos_dialog"/>
+            </xpath>
+
+        </template>
+
         <!-- Also add TOS to checkout page if it's separate from payment -->
         <template id="website_sale_checkout_tos" inherit_id="website_sale.checkout" name="Checkout Page TOS">
             <!-- Add TOS modal if enabled -->
@@ -100,4 +185,3 @@
         </template>
     </data>
 </odoo>
-

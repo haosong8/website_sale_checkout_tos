@@ -1,0 +1,40 @@
+.checkout-tos-modal .modal-dialog,
+.checkout-tos-dialog .modal-dialog {
+    max-width: 720px;
+    margin: 1.5rem auto;
+}
+
+.checkout-tos-modal .modal-content,
+.checkout-tos-dialog .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+}
+
+.checkout-tos-modal .modal-body,
+.checkout-tos-dialog .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.checkout-tos-modal .modal-header,
+.checkout-tos-dialog .modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.checkout-tos-modal .modal-footer,
+.checkout-tos-dialog .modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 767px) {
+    .checkout-tos-modal .modal-dialog,
+    .checkout-tos-dialog .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .checkout-tos-modal .modal-body,
+    .checkout-tos-dialog .modal-body {
+        max-height: 60vh;
+    }
+}

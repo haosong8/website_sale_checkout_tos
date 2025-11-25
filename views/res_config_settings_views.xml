@@ -22,8 +22,8 @@
                             <div class="o_setting_right">
                                 <label for="tos_enabled"/>
                                 <div class="text-muted">
-                                    Enable Terms of Service enforcement at checkout. 
-                                    If disabled, TOS checkbox will not be shown.
+                                    Enable the Review &amp; Accept flow at checkout.
+                                    If disabled, the dialog and buttons are hidden.
                                 </div>
                             </div>
                         </div>
@@ -50,8 +50,8 @@
                             <div class="o_setting_right">
                                 <label for="tos_content"/>
                                 <div class="text-muted">
-                                    Full Terms of Service text displayed in modal or dedicated page. 
-                                    HTML formatting is supported.
+                                    Full Terms of Service text displayed inside the dialog.
+                                    HTML formatting is supported (use HTML tags directly in the text).
                                 </div>
                             </div>
                         </div>
@@ -70,18 +70,10 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Show TOS in Modal -->
-                        <div class="col-12 col-lg-6 o_setting_box"
-                             data-key="tos_show_modal">
-                            <div class="o_setting_left">
-                                <field name="tos_show_modal"/>
-                            </div>
-                            <div class="o_setting_right">
-                                <label for="tos_show_modal"/>
-                                <div class="text-muted">
-                                    If enabled, TOS content is displayed in a modal popup. 
-                                    If disabled, TOS opens in a dedicated page.
-                                </div>
+                        <div class="col-12">
+                            <div class="alert alert-info mt-2">
+                                Checkout now follows a single two-step flow: click <em>Review &amp; Accept Terms</em>,
+                                read the dialog, tick the checkbox inside, then continue to checkout.
                             </div>
                         </div>
                     </div>
