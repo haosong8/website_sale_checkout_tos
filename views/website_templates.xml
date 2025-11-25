@@ -133,30 +133,37 @@
         <template id="checkout_tos_dialog" name="Checkout TOS Dialog">
             <t t-if="tos_enabled and tos_checkout_dialog">
                 <div class="modal fade checkout-tos-dialog" id="checkout_tos_dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">
+                                    <i class="fa fa-file-text-o me-2" aria-hidden="true"></i>
                                     <t t-esc="tos_title"/>
                                 </h5>
                             </div>
                             <div class="modal-body o_tos_content">
-                                <t t-raw="tos_content"/>
-                                <div class="form-check mt-3">
-                                    <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        id="tos_dialog_accepted"
-                                        required="required"
-                                    />
-                                    <label class="form-check-label" for="tos_dialog_accepted">
-                                        I have read and agree to the <t t-esc="tos_title"/>.
-                                    </label>
+                                <div class="tos-content-scrollable">
+                                    <t t-raw="tos_content"/>
+                                </div>
+                                <div class="tos-acceptance-section">
+                                    <div class="form-check">
+                                        <input 
+                                            class="form-check-input" 
+                                            type="checkbox" 
+                                            id="tos_dialog_accepted"
+                                            name="tos_dialog_accepted"
+                                            required="required"
+                                        />
+                                        <label class="form-check-label" for="tos_dialog_accepted">
+                                            <strong>I have read and agree to the <t t-esc="tos_title"/>.</strong>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Cancel</button>
                                 <button type="button" class="btn btn-primary" id="tos_dialog_accept_btn" disabled="disabled">
+                                    <i class="fa fa-check me-2" aria-hidden="true"></i>
                                     Accept and Continue
                                 </button>
                             </div>

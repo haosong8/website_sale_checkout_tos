@@ -216,7 +216,13 @@ class WebsiteSaleTOS(WebsiteSale):
             _logger.info("TOS Cart Inject: TOS is not enabled, returning empty")
             return request.make_response("")
         
-        _logger.info("TOS Cart Inject: TOS is enabled, getting config")
+        # Check if cart has products
+        order = request.website.sale_get_order(force_create=False)
+        if not order or not order.order_line:
+            _logger.info("TOS Cart Inject: Cart is empty or has no products, returning empty")
+            return request.make_response("")
+        
+        _logger.info("TOS Cart Inject: TOS is enabled and cart has products, getting config")
         
         # Get TOS config
         tos_config = self._get_tos_config()
