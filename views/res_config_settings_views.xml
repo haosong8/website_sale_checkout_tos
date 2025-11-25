@@ -22,36 +22,8 @@
                             <div class="o_setting_right">
                                 <label for="tos_enabled"/>
                                 <div class="text-muted">
-                                    Enable the Review &amp; Accept flow at checkout.
-                                    If disabled, the dialog and buttons are hidden.
-                                </div>
-                            </div>
-                        </div>
-                        <!-- TOS Title -->
-                        <div class="col-12 col-lg-6 o_setting_box"
-                             data-key="tos_title">
-                            <div class="o_setting_left">
-                                <field name="tos_title"/>
-                            </div>
-                            <div class="o_setting_right">
-                                <label for="tos_title"/>
-                                <div class="text-muted">
-                                    Title displayed for the Terms of Service 
-                                    (e.g., "Terms &amp; Conditions", "Terms of Service").
-                                </div>
-                            </div>
-                        </div>
-                        <!-- TOS Content -->
-                        <div class="col-12 o_setting_box"
-                             data-key="tos_content">
-                            <div class="o_setting_left">
-                                <field name="tos_content" widget="html"/>
-                            </div>
-                            <div class="o_setting_right">
-                                <label for="tos_content"/>
-                                <div class="text-muted">
-                                    Full Terms of Service text displayed inside the dialog.
-                                    HTML formatting is supported (use HTML tags directly in the text).
+                                    Enable the acknowledgment checkbox at checkout.
+                                    Customers acknowledge they will sign final terms with the sales quote.
                                 </div>
                             </div>
                         </div>
@@ -64,7 +36,7 @@
                             <div class="o_setting_right">
                                 <label for="tos_version"/>
                                 <div class="text-muted">
-                                    Version identifier for the Terms of Service 
+                                    Version identifier for the Terms of Service acknowledgment 
                                     (e.g., "v1.0", "2025-11-24"). 
                                     This is stored with each order acceptance.
                                 </div>
@@ -72,8 +44,7 @@
                         </div>
                         <div class="col-12">
                             <div class="alert alert-info mt-2">
-                                Checkout now follows a single two-step flow: click <em>Review &amp; Accept Terms</em>,
-                                read the dialog, tick the checkbox inside, then continue to checkout.
+                                Customers must acknowledge that they will sign final terms with the sales quote before proceeding to checkout.
                             </div>
                         </div>
                     </div>

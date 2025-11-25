@@ -2,14 +2,13 @@
 
 ## Overview
 
-This module adds a reusable, configurable Terms of Service (TOS) agreement step to the Odoo 18 website checkout flow. Customers must explicitly accept the TOS before placing an order or paying a deposit, and the acceptance is stored on the sale order with timestamp and version.
+This module adds a Terms of Service acknowledgment step to the Odoo 18 website checkout flow. Customers must acknowledge that they will sign the final terms and conditions with the sales quote before proceeding to checkout. The acknowledgment is stored on the sale order with timestamp and version for audit purposes.
 
 ## Features
 
-- **Configurable TOS**: Manage TOS content, title, and version from Website Settings
-- **Two-Step Dialog**: Customers click *Review & Accept*, read the dialog, tick the checkbox, then continue to checkout
-- **Enforcement**: Controller-side validation ensures TOS acceptance cannot be bypassed
-- **Audit Trail**: TOS acceptance is stored on sale orders with timestamp and version
+- **Simple Acknowledgment**: Customers check a box to acknowledge they will sign final terms with the sales quote
+- **Enforcement**: Controller-side validation ensures acknowledgment cannot be bypassed
+- **Audit Trail**: Acknowledgment is stored on sale orders with timestamp and version
 - **Reusable**: Works across all ecommerce products (windows, flooring, etc.)
 
 ## Installation
@@ -23,62 +22,59 @@ This module adds a reusable, configurable Terms of Service (TOS) agreement step 
 1. Go to **Website → Configuration → Settings**
 2. Scroll to the **"Checkout Terms & Conditions"** section
 3. Configure the following:
-   - **Enable Terms of Service**: Toggle to enable/disable the review dialog
-   - **TOS Title**: Title displayed for the Terms of Service (e.g., "Terms & Conditions")
-   - **TOS Content**: Full TOS text with HTML formatting support
+   - **Enable Terms of Service**: Toggle to enable/disable the acknowledgment checkbox
    - **TOS Version**: Version identifier (e.g., "v1.0", "2025-11-24")
 
 ## Usage
 
 ### For Customers
 
-1. On the cart summary the customer clicks **Review & Accept Terms**
-2. The dialog opens with the full terms; they tick the checkbox and click **Accept & Continue**
-3. The flow automatically redirects them to checkout/payment with proof of acceptance
-4. Orders cannot be placed without completing the dialog
+1. On the cart page, customers see a checkbox above the checkout button
+2. The checkbox states: "I acknowledge that I will sign the final terms and conditions with the sales quote."
+3. Customers must check the box before proceeding to checkout
+4. The checkout button is disabled until the checkbox is checked
+5. Final terms and conditions are signed with the sales quote (not displayed at checkout)
 
 ### For Administrators
 
-- View TOS acceptance status on sale orders:
-  - **TOS Accepted**: Boolean field indicating acceptance
-  - **TOS Accepted On**: Timestamp of acceptance
-  - **TOS Version**: Version of TOS that was accepted
-- TOS acceptance is logged in the order's message history
+- View TOS acknowledgment status on sale orders:
+  - **TOS Accepted**: Boolean field indicating acknowledgment
+  - **TOS Accepted On**: Timestamp of acknowledgment
+  - **TOS Version**: Version of TOS that was acknowledged
+- TOS acknowledgment is logged in the order's message history
 
 ## Technical Details
 
 ### Models Extended
 
-- `res.config.settings`: Added TOS configuration fields
+- `res.config.settings`: Added TOS configuration fields (enabled, version)
 - `sale.order`: Added `tos_accepted`, `tos_accepted_on`, and `tos_version` fields
 
 ### Controllers
 
-- `website_sale`: Extended to validate TOS acceptance and store acceptance data
+- `website_sale`: Extended to validate TOS acknowledgment and store acknowledgment data
 
 ### Views
 
 - Settings form: Added "Checkout Terms & Conditions" section
 - Sale order form: Added TOS fields for auditability
-- Payment page: Added TOS checkbox and modal/page integration
+- Payment page: Added TOS checkbox
+- Cart page: TOS checkbox injected via JavaScript
 
 ## Security
 
-- TOS fields on sale orders are read-only for standard users
+- TOS fields on sale orders are read-only for standard users (managers can edit)
 - Configuration is restricted to system administrators
-- Controller validation prevents bypassing TOS acceptance
+- Controller validation prevents bypassing TOS acknowledgment
 
 ## Integration with Other Modules
 
 This module is designed to work alongside other ecommerce modules:
 
-- **Window Order Status**: TOS acceptance can be viewed in order status views
-- **Window Website Deposit**: TOS acceptance is required before deposit payment
+- **Window Order Status**: TOS acknowledgment can be viewed in order status views
+- **Window Website Deposit**: TOS acknowledgment is required before deposit payment
 - Works with any product type (windows, flooring, etc.)
 
 ## Support
 
 For issues or questions, please contact your system administrator or refer to the module documentation.
-
-
-

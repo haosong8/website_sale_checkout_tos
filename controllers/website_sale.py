@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import http, fields, _
+from odoo import http, fields, _, tools
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
-from odoo.exceptions import UserError
 
 
 class WebsiteSaleTOS(WebsiteSale):
@@ -11,31 +10,22 @@ class WebsiteSaleTOS(WebsiteSale):
 
     def _is_tos_enabled(self):
         """Check if TOS functionality is enabled."""
-        return request.env["ir.config_parameter"].sudo().get_param(
-            "website_sale_checkout_tos.tos_enabled", "False"
-        ) == "True"
+        ICP = request.env["ir.config_parameter"].sudo()
+        raw_value = ICP.get_param("website_sale_checkout_tos.tos_enabled", default="False")
+        return tools.str2bool(str(raw_value))
 
     def _get_tos_config(self):
         """Get TOS configuration values."""
         ICP = request.env["ir.config_parameter"].sudo()
         return {
             "tos_enabled": self._is_tos_enabled(),
-            "tos_title": ICP.get_param("website_sale_checkout_tos.tos_title", "Terms & Conditions"),
-            "tos_content": ICP.get_param("website_sale_checkout_tos.tos_content", ""),
             "tos_version": ICP.get_param("website_sale_checkout_tos.tos_version", "v1.0"),
-            "tos_show_modal": ICP.get_param("website_sale_checkout_tos.tos_show_modal", "True") == "True",
-            "tos_checkout_dialog": ICP.get_param("website_sale_checkout_tos.tos_checkout_dialog", "False") == "True",
         }
 
     @http.route(["/shop/tos"], type="http", auth="public", website=True)
     def tos_page(self, **kwargs):
-        """Display TOS content in a dedicated page."""
-        tos_config = self._get_tos_config()
-        values = {
-            "tos_title": tos_config["tos_title"],
-            "tos_content": tos_config["tos_content"],
-        }
-        return request.render("website_sale_checkout_tos.tos_page", values)
+        """Redirect to cart - TOS content is no longer displayed."""
+        return request.redirect("/shop/cart")
 
     def _get_shop_payment_values(self, order, **post):
         """Override to add TOS config to payment page values."""
@@ -91,7 +81,7 @@ class WebsiteSaleTOS(WebsiteSale):
             
             if not is_accepted:
                 # Re-render payment page with error
-                error_msg = _("You must agree to the Terms & Conditions to place your order.")
+                error_msg = _("You must acknowledge that you will sign the final terms with the sales quote.")
                 # Get TOS config for template
                 tos_config = self._get_tos_config()
                 values = {
@@ -119,7 +109,7 @@ class WebsiteSaleTOS(WebsiteSale):
                 "tos_version": tos_config["tos_version"],
             })
             order.message_post(
-                body=_("Customer accepted Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
+                body=_("Customer acknowledged Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
             )
 
         # Clear any previous error
@@ -144,48 +134,32 @@ class WebsiteSaleTOS(WebsiteSale):
 
     @http.route()
     def checkout(self, **post):
-        """Override checkout to pass TOS config to template and validate TOS."""
+        """Override checkout to validate TOS acceptance."""
         order = request.website.sale_get_order(force_create=False)
         
-        # If using dialog mode, check TOS acceptance before proceeding
+        # Validate TOS acceptance if enabled
         if self._is_tos_enabled() and order:
-            tos_config = self._get_tos_config()
             tos_accepted = post.get("tos_accepted")
             is_accepted = (
                 tos_accepted in ("on", "true", "1", True) or
                 (isinstance(tos_accepted, bool) and tos_accepted)
             )
             
-            if tos_config.get("tos_checkout_dialog"):
-                # In dialog mode, validate TOS was accepted
-                if not is_accepted:
-                    request.session['tos_error'] = _("You must agree to the Terms & Conditions to proceed.")
-                    return request.redirect("/shop/cart")
-                # Store acceptance when using dialog mode
-                if is_accepted and not order.tos_accepted:
-                    order.write({
-                        "tos_accepted": True,
-                        "tos_accepted_on": fields.Datetime.now(),
-                        "tos_version": tos_config["tos_version"],
-                    })
-                    order.message_post(
-                        body=_("Customer accepted Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
-                    )
-            else:
-                # In checkbox mode, validate TOS was accepted
-                if not is_accepted:
-                    request.session['tos_error'] = _("You must agree to the Terms & Conditions to proceed.")
-                    return request.redirect("/shop/cart")
-                # Store acceptance when using checkbox mode
-                if is_accepted and not order.tos_accepted:
-                    order.write({
-                        "tos_accepted": True,
-                        "tos_accepted_on": fields.Datetime.now(),
-                        "tos_version": tos_config["tos_version"],
-                    })
-                    order.message_post(
-                        body=_("Customer accepted Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
-                    )
+            if not is_accepted:
+                request.session['tos_error'] = _("You must acknowledge that you will sign the final terms with the sales quote.")
+                return request.redirect("/shop/cart")
+            
+            # Store acceptance
+            if is_accepted and not order.tos_accepted:
+                tos_config = self._get_tos_config()
+                order.write({
+                    "tos_accepted": True,
+                    "tos_accepted_on": fields.Datetime.now(),
+                    "tos_version": tos_config["tos_version"],
+                })
+                order.message_post(
+                    body=_("Customer acknowledged Terms of Service (Version: %s) at checkout.") % tos_config["tos_version"]
+                )
         
         response = super().checkout(**post)
         
@@ -206,40 +180,22 @@ class WebsiteSaleTOS(WebsiteSale):
     )
     def get_tos_block(self, **kw):
         """Return the TOS block HTML for JavaScript injection."""
-        import logging
-        _logger = logging.getLogger(__name__)
-        
-        _logger.info("TOS Cart Inject: get_tos_block called")
-        
         # Check if TOS is enabled
         if not self._is_tos_enabled():
-            _logger.info("TOS Cart Inject: TOS is not enabled, returning empty")
             return request.make_response("")
         
         # Check if cart has products
         order = request.website.sale_get_order(force_create=False)
         if not order or not order.order_line:
-            _logger.info("TOS Cart Inject: Cart is empty or has no products, returning empty")
             return request.make_response("")
         
-        _logger.info("TOS Cart Inject: TOS is enabled and cart has products, getting config")
-        
-        # Get TOS config
-        tos_config = self._get_tos_config()
-        _logger.info("TOS Cart Inject: TOS config: enabled=%s, dialog=%s", 
-                     tos_config.get('tos_enabled'), tos_config.get('tos_checkout_dialog'))
-        
-        # Render the template
+        # Get TOS config and render the template
         try:
+            tos_config = self._get_tos_config()
             html = request.env["ir.ui.view"]._render_template(
                 "website_sale_checkout_tos.tos_cart_block",
                 values=tos_config
             )
-            _logger.info("TOS Cart Inject: Template rendered successfully, HTML length: %s", len(html) if html else 0)
-            if html:
-                _logger.info("TOS Cart Inject: HTML preview (first 300 chars): %s", html[:300])
             return html
-        except Exception as e:
-            _logger.exception("TOS Cart Inject: Error rendering TOS block template: %s", str(e))
+        except Exception:
             return request.make_response("")
-
