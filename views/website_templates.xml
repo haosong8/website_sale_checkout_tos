@@ -5,17 +5,39 @@
         <template id="tos_cart_block" name="TOS Cart Block (for injection)">
             <t t-if="tos_enabled">
                 <div class="oe_website_sale_tos_block mb-3">
-                    <div class="form-check">
+                    <div class="form-check d-flex align-items-start gap-2">
                         <input 
-                            class="form-check-input" 
+                            class="form-check-input mt-1" 
                             type="checkbox" 
                             name="tos_accepted" 
                             id="tos_accepted_cart"
                             required="required"
                         />
-                        <label class="form-check-label" for="tos_accepted_cart">
-                            I acknowledge that I will sign the final terms and conditions with the sales quote.
-                        </label>
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <label class="form-check-label mb-0" for="tos_accepted_cart">
+                                    I acknowledge that I will sign the final terms and conditions with the sales quote.
+                                </label>
+                                <t t-if="tos_content">
+                                    <div class="d-inline-flex align-items-center gap-2">
+                                        <button type="button"
+                                                class="btn btn-link p-0 align-baseline text-body text-decoration-underline fw-semibold small"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#checkout_tos_modal">
+                                            Review checkout terms
+                                        </button>
+                                        <span class="text-muted">|</span>
+                                        <a t-att-href="tos_url or '/terms'"
+                                           class="text-body fw-semibold small text-decoration-none"
+                                           target="_blank"
+                                           rel="noopener noreferrer">
+                                            Open full page
+                                        </a>
+                                    </div>
+                                    <t t-call="website_sale_checkout_tos.checkout_tos_modal"/>
+                                </t>
+                            </div>
+                        </div>
                     </div>
                     <t t-if="request.session.get('tos_error')">
                         <div class="alert alert-danger mt-2" role="alert">
@@ -32,17 +54,39 @@
             <xpath expr="//div[@id='payment_method']" position="before">
                 <t t-if="tos_enabled">
                     <div class="oe_website_sale_tos_block mb-3">
-                        <div class="form-check">
+                        <div class="form-check d-flex align-items-start gap-2">
                             <input 
-                                class="form-check-input" 
+                                class="form-check-input mt-1" 
                                 type="checkbox" 
                                 name="tos_accepted" 
                                 id="tos_accepted"
                                 required="required"
                             />
-                            <label class="form-check-label" for="tos_accepted">
-                                I acknowledge that I will sign the final terms and conditions with the sales quote.
-                            </label>
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <label class="form-check-label mb-0" for="tos_accepted">
+                                        I acknowledge that I will sign the final terms and conditions with the sales quote.
+                                    </label>
+                                    <t t-if="tos_content">
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            <button type="button"
+                                                    class="btn btn-link p-0 align-baseline text-body text-decoration-underline fw-semibold small"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#checkout_tos_modal">
+                                                Review checkout terms
+                                            </button>
+                                            <span class="text-muted">|</span>
+                                            <a t-att-href="tos_url or '/terms'"
+                                               class="text-body fw-semibold small text-decoration-none"
+                                               target="_blank"
+                                               rel="noopener noreferrer">
+                                                Open full page
+                                            </a>
+                                        </div>
+                                        <t t-call="website_sale_checkout_tos.checkout_tos_modal"/>
+                                    </t>
+                                </div>
+                            </div>
                         </div>
                         <t t-if="request.session.get('tos_error')">
                             <div class="alert alert-danger mt-2" role="alert">
@@ -53,5 +97,31 @@
                 </t>
             </xpath>
         </template>
+
+        <template id="checkout_tos_modal" name="Checkout Terms Modal">
+            <t t-if="tos_content">
+                <div class="modal fade" id="checkout_tos_modal" tabindex="-1" aria-labelledby="checkout_tos_modal_label" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable mt-4 mt-md-5">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="checkout_tos_modal_label">
+                                    Checkout Terms &amp; Conditions
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body o_checkout_tos_content">
+                                <t t-raw="tos_content"/>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
     </data>
 </odoo>

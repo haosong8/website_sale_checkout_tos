@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import http, fields, _, tools
-from odoo.http import request
+from markupsafe import Markup
+
+from odoo import _, fields, http, tools
 from odoo.addons.website_sale.controllers.main import WebsiteSale
+from odoo.http import request
 
 
 class WebsiteSaleTOS(WebsiteSale):
@@ -17,15 +19,22 @@ class WebsiteSaleTOS(WebsiteSale):
     def _get_tos_config(self):
         """Get TOS configuration values."""
         ICP = request.env["ir.config_parameter"].sudo()
+        company = request.website.company_id.sudo()
+        tos_content = company.invoice_terms_html or ""
         return {
             "tos_enabled": self._is_tos_enabled(),
             "tos_version": ICP.get_param("website_sale_checkout_tos.tos_version", "v1.0"),
+            "tos_content": Markup(tos_content) if tos_content else "",
+            "tos_url": "/terms",
         }
 
     @http.route(["/shop/tos"], type="http", auth="public", website=True)
     def tos_page(self, **kwargs):
-        """Redirect to cart - TOS content is no longer displayed."""
-        return request.redirect("/shop/cart")
+        """Preserve backwards compatibility and reuse the default /terms page."""
+        values = self._get_tos_config()
+        if not values.get("tos_enabled") or not values.get("tos_content"):
+            return request.redirect("/shop/cart")
+        return request.redirect("/terms")
 
     def _get_shop_payment_values(self, order, **post):
         """Override to add TOS config to payment page values."""
