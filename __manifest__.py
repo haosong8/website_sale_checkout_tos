@@ -36,6 +36,3 @@ This module adds a Terms of Service acknowledgment step to the Odoo 18 website c
     'auto_install': False,
     'license': 'LGPL-3',
 }
-
-
-
